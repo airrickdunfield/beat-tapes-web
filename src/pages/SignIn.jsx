@@ -18,7 +18,7 @@ function SignIn( { handleLogin } ) {
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        fetch("http://localhost:3000/users/sign-in", {
+        fetch(`${import.meta.env.VITE_API}/users/sign-in`, {
             method: "POST", 
             headers: {
                 "Content-Type": "application/json"
