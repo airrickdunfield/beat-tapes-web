@@ -15,9 +15,9 @@ function Tape() {
     useEffect(() => {   
 
         // Fetch the tape with the id
-        fetch(`http://localhost:3000/tapes/${id}`, {
+        fetch(`${import.meta.env.VITE_API}/tapes/${id}`, {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                    Authorization: `Bearer ${localStorage.getItem('jwt-token')}`
                 }
             })
             .then(response => response.json())
@@ -35,7 +35,7 @@ function Tape() {
 
                 </div>
                 <div className={g['col-4']}>
-                    <img src={`http://localhost:3000/images/${tapeData.image_name}`} alt="Placeholder" />
+                    <img src={`${import.meta.env.VITE_API}/images/${tapeData.image_name}`} alt="Placeholder" />
                 </div>
                 <div className={g['col-8']}>
                 <Link to="/tapes" className={`${g['button']} ${g['small']}`}>&lt; Tapes</Link>

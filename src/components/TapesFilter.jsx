@@ -5,43 +5,55 @@ import g from '../global.module.css';
 
 
 
-function TapeFilters (  { updateTapes } ) {
+function TapeFilters ( { updateTapes } ) {
 
-    const [artists, setArtists] = useState([]);
+    const [ artists, setArtists ] = useState([]);
 
-    const handleFilterSubmit = async (event) => {
-        event.preventDefault();
-      
-        const formData = new FormData(event.target);
-        const selectedArtists = formData.getAll('artists');
-    
-        const queryString = selectedArtists.map(id => `artists=${id}`).join('&');
+    useEffect( () => {
 
-        fetch(`http://localhost:3000/tapes?${queryString}`)
-            .then(response => response.json())
-            .then(data => updateTapes(data));
+        fetch(`${import.meta.env.VITE_API}/artists`)
+            .then( (response) => response.json() )
+            .then( data => {
+                setArtists(data);
+            });
 
-
-    };
-
-    useEffect(() => {
-        fetch('http://localhost:3000/artists/')
-            .then(response => response.json())
-            .then(data => setArtists(data));
     }, []);
+
+    const handleFilterSubmit = (event) => {
+        event.preventDefault();
+
+        const fitlerFormData = new FormData(event.target);
+        const selectedArtists = fitlerFormData.getAll("artists");
+
+        const queryStringArray = selectedArtists.map( (id) => `artists=${id}`);
+        const queryString = queryStringArray.join("&")
+
+        console.log(queryString)
+
+        fetch(`${import.meta.env.VITE_API}/tapes?${queryString}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("jwt-token")}`    
+            }
+        })
+            .then( (response) => response.json() )
+            .then( (data) => {
+                updateTapes(data);
+            });
+
+    }
 
     return (
         <div className={tf['filters-container']}>
-            <form  onSubmit={ handleFilterSubmit }>
+            <form onSubmit={handleFilterSubmit}>
                 <div className={g['form-group']}>
                     <h4>Artists</h4>
-                    {artists.map(artist => {
+                    { artists.map(artist => {
                         return (
                             <label key={artist.id}>
                                 <input type="checkbox" name="artists" value={artist.id} />
-                                {artist.name}
+                                { artist.name }
                             </label>
-                        );
+                        )
                     })}
                     <input type="submit" value="Apply" className={g['button']} />
                 </div>

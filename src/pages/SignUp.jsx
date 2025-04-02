@@ -1,37 +1,43 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router';
 import g from '../global.module.css';
 
 import bannerImage from '../assets/images/home-bg.jpg';
 
 function SignUp() {
 
+    // Used to redirect after successful sign up
+    const navigate = useNavigate();
+
+    // The form data lives here
     const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-        confirmPassword: '',
-    });    
+        email: "",
+        password: "",
+        confirmPassword: ""
+    });
 
-    const handleSubmit = async (e) => {
+    // Runs when the signup for is submitted
+    const handleSubmit = (e) => {
         e.preventDefault();
-
+        
+        // If the user has typed different passwords, don't continue
         if (formData.password !== formData.confirmPassword) {
-            alert('Passwords do not match!');
+            alert("Passwords do not match!");
             return;
         }
 
-        fetch('http://localhost:3000/users/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: formData.email,
-                    password: formData.password
-                })
-            })
-            .then(response => response.json())
-            .then(response => {
-            });
+        // Send the post request off to the users endpoint in the api with the form data from above
+        fetch(`${import.meta.env.VITE_API}/users`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+        .then( response => response.json() )
+        .then(returnedJSON => {
+            navigate("/sign-in")
+        });
 
     };    
 
@@ -49,7 +55,10 @@ function SignUp() {
                                     id="email" 
                                     name="email"
                                     placeholder='Email'
-                                    onChange={(e) => setFormData({...formData, email: e.target.value})} 
+                                    required
+                                    onChange={ (event) => {
+                                        setFormData({  ...formData, email: event.target.value });
+                                    }}
                                 />
                             </div>
                             <div >
@@ -59,7 +68,10 @@ function SignUp() {
                                     id="password" 
                                     placeholder='Password'
                                     name="password" 
-                                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                    required
+                                    onChange={ (event) => {
+                                        setFormData({ ...formData, password: event.target.value });
+                                    } }
                                 />
                             </div>
                             <div >
@@ -68,7 +80,9 @@ function SignUp() {
                                     type="password" id="confirm-password" 
                                     placeholder='Retype Password'
                                     name="confirm-password" 
-                                    onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                                    onChange={ (event) => {
+                                        setFormData( { ...formData, confirmPassword: event.target.value } );
+                                    } }
                                 />
                             </div>
                             <input type="submit" value="Register" className={`${g["button"]} ${g["success"]} `} />

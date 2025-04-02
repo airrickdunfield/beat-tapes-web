@@ -4,7 +4,6 @@
     flex-direction: column;
 }
 
-.app main {
+main {
     flex-grow: 1;
-    padding: 4rem 0;
 }

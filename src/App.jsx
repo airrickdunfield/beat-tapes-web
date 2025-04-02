@@ -1,49 +1,70 @@
-import React, { useState, useEffect } from 'react';
-
-import { Routes, Route, Navigate } from 'react-router';
+import { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
 
+// Import our authentication HOC
+import authRequired from './authRequired';
+
+import SignUp from './pages/SignUp';
+import SignIn from './pages/SignIn';
+import Home from './pages/Home';
 import AllTapes from './pages/AllTapes';
 import Tape from './pages/Tape';
-import Home from './pages/Home';
-import SignIn from './pages/SignIn';
-import SignUp from './pages/SignUp';
+
+// Create components by passing the pages into Auth Required
+const ProtectedAllTapes = authRequired(AllTapes);
+const ProtectedTape = authRequired(Tape);
 
 import a from './App.module.css';
 
 function App() {
 
+  const navigate = useNavigate();
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Passed into the header to log out
+  const handleLogout = () => {
+    
+    localStorage.removeItem("jwt-token");
+    setIsAuthenticated(false);
+    
+    navigate("/sign-in");
+
+  }
+
+  // Passed into the header to Sign-in page to login
+  const handleLogin = () => {
+
+    setIsAuthenticated(true);
+    navigate("/tapes");
+
+  }
+
+  // When the page loads, check if the user has a token
   useEffect(() => {
-      // Check if the token exists in localStorage
-      const token = localStorage.getItem('token');
-      if (token) {
-          setIsAuthenticated(true);
-      }
-      
+    const jwtToken = localStorage.getItem("jwt-token");
+
+    if(jwtToken) {
+      setIsAuthenticated(true);
+    }
+
   }, []);
 
   return (
     
     <div className={a.app}>
-      <Header 
-        isAuthenticated={isAuthenticated} 
-        setIsAuthenticated={setIsAuthenticated} 
-      />
+      <Header handleLogout={handleLogout} isAuthenticated={isAuthenticated} />
 
       <Routes>
-        <Route path="/" element={isAuthenticated ? <Navigate to="/tapes" /> : <Home />} />
-        <Route path="/sign-in" 
-          element={<SignIn 
-            setIsAuthenticated={setIsAuthenticated} />}  
-            isAuthenticated={isAuthenticated}  
-          />
+        <Route path="/" element={<Home />} />
         <Route path="/sign-up" element={<SignUp />} />
-        <Route path="/tapes" element={isAuthenticated ? <AllTapes /> : <Navigate to="/" /> } />
-        <Route path="/tapes/:id" element={isAuthenticated ? <Tape /> : <Navigate to="/" />} />
+        <Route path="/sign-in" 
+          element={<SignIn handleLogin={handleLogin} />} />
+        <Route path="/tapes" element={<ProtectedAllTapes />} />
+        <Route path="/tapes/:id" element={<ProtectedTape />} />
       </Routes>
 
       <Footer />

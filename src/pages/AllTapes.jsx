@@ -10,26 +10,30 @@ import at from './AllTapes.module.css';
 
 function AllTapes() {
 
+    // This is the array to hold all of our tapes
+    // Gets update on fetchTapes
     const [tapes, setTapes] = useState([]);
 
-    // We have moved the fetchTapes to a function, because we want to call it both when the component mounts and when a new tape is added
+    // We have moved the fetchTapes to a funciton, because we want to call it both when the component mounts and when a new tape is added
+    // Here we get the saved token and send it across to be decoded
     const fetchTapes = async () => {
-        fetch('http://localhost:3000/tapes/', {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                }
+        fetch(`${import.meta.env.VITE_API}/tapes/`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("jwt-token")}`      
+            }
         })
-            .then(response => response.json())
-            .then(data => {
-                setTapes(data);
-            });   
+        .then(response => response.json())
+        .then(data => {
+            setTapes(data);
+        });
     }
 
-    const handleUpdatedTapes = (tapesArray) => {
+    // Pass the new returned data array to the setTape state function
+    const handleFilteredTapes = (tapesArray) => {
         setTapes(tapesArray);
     }
 
-    // When the component is displayed, fetch the tapes
+    // When the component is displayed or the tapes array is updated, fetch the tapes from the database again
     useEffect(() => {
 
         fetchTapes();
@@ -39,21 +43,17 @@ function AllTapes() {
     return (
         
         <main className={g['container']}>
-            <div className={g['grid-container']}>
-                <div className={g['col-12']}>
-                    <h2>Lofi Cassettes</h2>
-                </div>
-            </div>
+            <h2>Lofi Cassettes</h2>
             <div className={g['grid-container']}>
                 <div className={g['col-3']}>
                         <h3>Filters</h3>
-                        <TapeFilters updateTapes={handleUpdatedTapes} />
+                        <TapeFilters updateTapes={handleFilteredTapes} />
                 </div>
                 <div className={g['col-9']}>
                     <div className={`${g['flex']} ${g['space-between']} ${g['items-center']}`}>
                         <h3>My Collection</h3>
-                        {/* Pass the function to the AddTapeModal component down to the child */}
-                        <AddTapeModal />
+                        {/* Pass the funciton to the AddTapeModal component down to the child */}
+                        <AddTapeModal onTapeAdded={fetchTapes} />
                     </div>
                     <div className={g['grid-container']}>
 
@@ -61,14 +61,14 @@ function AllTapes() {
                             return (
                                 <div key={tape.id}  className={`${g['col-4']} ${g['flex']} ${g['flex-grow']}`}>
                                     <div className={`${g['card']}`}>
-                                        <img src={`http://localhost:3000/images/${tape.image_name}`} alt="Placeholder" />
+                                        <img src={`${import.meta.env.VITE_API}/images/${tape.image_name}`} alt="Placeholder" />
                                         <div className={g['card-content']}>
                                             <h4 className={`${at['tape-title']}`}>{tape.title}</h4>
                                             <p>{tape.artist}</p>
                                             <div className={`${at['tape-actions']}`}>
                                                 <Link to={`/tapes/${tape.id}`} className={`${g['button']} ${g['small']}`}>View</Link>
                                                 <UpdateTapeModal onTapeUpdated={fetchTapes} tape={tape} />
-                                                <DeleteTapeModal onTapeDeleted={fetchTapes} id={tape.id} />
+                                                <DeleteTapeModal onTapeDeleted={fetchTapes} tape={tape} />
                                             </div>
                                         </div>
                                     </div>

@@ -76,10 +76,10 @@ img {
 
 /* Grid */
 .grid-container {
+    width: 100%;
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     gap: 1rem;
-    padding: 0 1rem;
 }
 
 .col-1 { grid-column: span 1; }
@@ -188,11 +188,16 @@ img {
     margin-right: 0.5rem;
 }
 
-.form-group input, .form-group select{
+.form-group input, .form-group select, .form-group textarea {
     border: 1px solid #000;
     padding: 0.5rem;
     font-family: 'perfect-dos', monospace;
-    max-width: 100%;
+    width: 100%;
+}
+
+.form-group textarea {
+    height: 180px;
+    width: 100%;
 }
 
 .form-group input[type="text"] {
@@ -204,6 +209,11 @@ img {
 }
 .form-group input[type="submit"] {
     margin-top: 1rem;
+}
+
+.form-group input[type="submit"],
+.form-group input[type="checkbox"] {
+    width: unset;
 }
 
 /* Banner */
@@ -230,6 +240,12 @@ img {
 
 .banner__content {
     z-index: 1;
+}
+
+.banner__content .card {
+    width: 100%;
+    max-width: 380px;
+    margin: 0 auto;
 }
 
 .banner__buttons {

@@ -10,6 +10,7 @@ function ModalContent({ onClose, onTapeAdded }) {
   // State to hold the artist id, title, image
   const [artist, setArtist] = useState("");
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [image, setImage] = useState("");
 
   // State to hold the new artist info if that option is selected
@@ -20,7 +21,7 @@ function ModalContent({ onClose, onTapeAdded }) {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch("http://localhost:3000/artists", {
+    fetch(`${import.meta.env.VITE_API}/artists`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -47,7 +48,7 @@ function ModalContent({ onClose, onTapeAdded }) {
   };
 
   // Send the form data to the API
-  const handleFormSubmit = async (event) => {
+  const handleFormSubmit = (event) => {
 
     // Stop the HTML form from submitting
     event.preventDefault();
@@ -65,7 +66,7 @@ function ModalContent({ onClose, onTapeAdded }) {
       };
 
       // First, create the new artist by sending a POST request to the API
-     fetch("http://localhost:3000/artists", newArtistFetchMeta)
+     fetch(`${import.meta.env.VITE_API}/artists`, newArtistFetchMeta)
         .then((response) => response.json())
         .then((data) => {
           artistId = data.artistId;
@@ -77,26 +78,29 @@ function ModalContent({ onClose, onTapeAdded }) {
     const formData = new FormData();
     formData.append("artist_id", artistId);
     formData.append("title", title);
+    formData.append("description", description);
     formData.append("image", image);
 
-    // Send the POST request to the API to create new tape
-    fetch("http://localhost:3000/tapes", { 
+    // Send the POST request to the API to create new tape w/ the JWT token
+    fetch(`${import.meta.env.VITE_API}/tapes`, { 
         method: "POST", 
         body: formData,
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("jwt-token")}`
         }, 
       })
       .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(err => console.log(err));
+      .then(data => {
+        
+        // Call the onTapeAdded function that was passed as a prop
+        //    @NOTE: This is passed down from AllTapes.jsx and just calls the fetchTapes function to repopulate the tapes
+        onTapeAdded();
 
-    // Call the onTapeAdded function that was passed as a prop
-    //    @NOTE: This is passed down from AllTapes.jsx and just calls the fetchTapes function to repopulate the tapes
-    onTapeAdded();
+        // Close the modal.
+        onClose();
 
-    // Close the modal.
-    onClose();
+      });
+
 
   };
 
@@ -116,7 +120,7 @@ function ModalContent({ onClose, onTapeAdded }) {
                 {dbArtists && dbArtists.map((artist, index) => (
                   <option key={artist.id} value={artist.id}>{artist.name}</option>
                 ))}
-                <option value="-1">+ New Artist + </option>
+                <option value="-1">+ New Artist +</option>
               </select>
             ) : (
               <>
@@ -139,6 +143,12 @@ function ModalContent({ onClose, onTapeAdded }) {
               id="title"
               onChange={(e) => setTitle(e.target.value)}
             />
+            <label>Description</label>
+            <textarea 
+              name="description" 
+              id="description"
+              onChange={ (e) => {setDescription(e.target.value)} }
+              ></textarea>
             <label htmlFor="image">Image</label>
             <input type="file"
               name="image"

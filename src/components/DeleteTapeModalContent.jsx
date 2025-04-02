@@ -2,30 +2,33 @@ import React, {useState, useEffect} from "react";
 import m from "./AddTapeModalContent.module.css";
 import g from "../global.module.css";
 
-function DeleteModalContent({ id, onClose, onTapeDeleted }) {
+function DeleteModalContent({ tape, onClose, onTapeDeleted }) {
     
     // Send the data to the API when the user submits the form
-    const handleFormSubmit = async (event) => {
+    const handleFormSubmit = (event) => {
       
       // Stop the HTML form from submitting
       event.preventDefault();
 
       // Send the POST request to the API to create new tape
-      fetch(`http://localhost:3000/tapes/${id}`, {
+      fetch(`${import.meta.env.VITE_API}/tapes/${tape.id}`, {
           headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
+              Authorization: `Bearer ${localStorage.getItem('jwt-token')}`
           },
           method: "DELETE"
         })
         .then(response => response.json())
-        .then(data => console.log(data));
+        .then(data => {
 
-      // Call the onTapeAdded function that was passed as a prop
-      //    @NOTE: This is passed down from AllTapes.jsx and just calls the fetchTapes function to repopulate the tapes
-      onTapeDeleted();
+          // Call the onTapeAdded function that was passed as a prop
+          //    @NOTE: This is passed down from AllTapes.jsx and just calls the fetchTapes function to repopulate the tapes
+          onTapeDeleted();
 
-      // Close the modal.
-      onClose();
+          // Close the modal.
+          onClose();          
+
+        });
+
 
     };
 

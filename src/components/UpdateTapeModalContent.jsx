@@ -12,13 +12,14 @@ function UpdateModalContent({ onClose, onTapeUpdated, tape }) {
 
   // Used to store the title, image and new artist name from the form
   const [title, setTitle] = useState(tape.title);
+  const [description, setDescription] = useState(tape.description);
   const [image, setImage] = useState("");
   const [isNewArtist, setIsNewArtist] = useState(false);
   const [newArtist, setNewArtist] = useState("");
 
   // Load the artists from the API
   useEffect(() => {
-    fetch("http://localhost:3000/artists")
+    fetch(`${import.meta.env.VITE_API}/artists`)
       .then((res) => res.json())
       .then((data) => {
         setDbArtists(data);
@@ -52,7 +53,7 @@ function UpdateModalContent({ onClose, onTapeUpdated, tape }) {
     if (isNewArtist) {
 
       // First, create the new artist by sending a POST request to the API
-      const artistResponse = await fetch("http://localhost:3000/artists", {
+      const artistResponse = await fetch(`${import.meta.env.VITE_API}/artists`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ new_artist: newArtist }),
@@ -72,29 +73,29 @@ function UpdateModalContent({ onClose, onTapeUpdated, tape }) {
     // Append the artist ID, title and image to the form data
     formData.append("artist_id", artistId);
     formData.append("title", title);
+    formData.append("description", description);
     formData.append("image", image);
 
     // Send the POST request to the API to create new tape
-    const tapeResponse = await fetch(`http://localhost:3000/tapes/${tape.id}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      },
-      method: "PUT",
-      body: formData
-    });
+    const tapeResponse = await fetch(`${import.meta.env.VITE_API}/tapes/${tape.id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('jwt-token')}`
+        },
+        method: "PUT",
+        body: formData
+      })
+      .then(response => response.json())
+      .then(json => {
 
-    // Get the response from the API
-    const tapeResult = await tapeResponse.json();
+        // Call the onTapeUpdated function that was passed as a prop
+        //    @NOTE: This is passed down from AllTapes.jsx and just calls the fetchTapes function to repopulate the tapes
+        onTapeUpdated();
 
-    // Log the response to the console
-    console.log("Success:", tapeResult);
+        // Close the modal.
+        onClose();
 
-    // Call the onTapeUpdated function that was passed as a prop
-    //    @NOTE: This is passed down from AllTapes.jsx and just calls the fetchTapes function to repopulate the tapes
-    onTapeUpdated();
+      })
 
-    // Close the modal.
-    onClose();
 
   };
 
@@ -103,7 +104,7 @@ function UpdateModalContent({ onClose, onTapeUpdated, tape }) {
       <div className={`${m['modal']} ${g['card']}`}>
         <h3>Edit Tape</h3>
         <form action="" className={`${g['form-group']} ${g['grid-container']}`} onSubmit={handleFormSubmit} encType="multipart/form-data">
-          <div className={g['col-4']}>
+          <div className={g['col-6']}>
             <label htmlFor="artist">Artist</label>
             {!isNewArtist ? (
               <select
@@ -128,9 +129,7 @@ function UpdateModalContent({ onClose, onTapeUpdated, tape }) {
                 <button className={`${g['button']} ${m['modal__show-list']}`} onClick={() => setIsNewArtist(false)}>Show List</button>
               </>
             )}
-          </div>
-          <div className={g['col-8']}>
-            <label htmlFor="title">Title</label>
+                        <label htmlFor="title">Title</label>
             <input
               type="text"
               name="title"
@@ -138,8 +137,17 @@ function UpdateModalContent({ onClose, onTapeUpdated, tape }) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
+            <label htmlFor="">Description</label>
+            <textarea 
+              name="description" 
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              ></textarea>
+          </div>
+          <div className={g['col-6']}>
             <label>Current Image</label>
-            <img src={`http://localhost:3000/images/${tape.image_name}`} alt="Placeholder" />
+            <img src={`${import.meta.env.VITE_API}/images/${tape.image_name}`} alt="Placeholder" />
             <label htmlFor="image">Upload New Image</label>
             <input type="file"
               name="image"

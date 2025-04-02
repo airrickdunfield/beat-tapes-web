@@ -1,43 +1,39 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from "react-router";
 import g from '../global.module.css';
 import bannerImage from '../assets/images/home-bg.jpg';
 
-function SignIn( {setIsAuthenticated}) {
-
-    const [loginSuccess, setLoginSuccess] = useState(false);
+function SignIn( { handleLogin } ) {
+    
+    // Set up state variabes
     const [formData, setFormData] = useState({
-        email: '',
-        password: '',
+        email: "",
+        password: ""
     });
 
-    const navigate = useNavigate(); 
+    // Used to redirect back to the home page
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        if (loginSuccess) { navigate('/'); }
-    }, [loginSuccess]);
-
+    // Runs when the log in form is submitted
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        fetch('http://localhost:3000/users/sign-in/', {
-            method: 'POST',
+        
+        fetch("http://localhost:3000/users/sign-in", {
+            method: "POST", 
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                email: formData.email,
-                password: formData.password,
-            }),
+            body: JSON.stringify(formData)
         })
-        .then((response) => response.json())
-        .then((response) => {
-            localStorage.setItem('token', response.token);
+        .then( response => response.json() )
+        .then( returnedData => {
+            // The returned data sets the token via the key in the API, here we store it local storate
+            localStorage.setItem( "jwt-token", returnedData.jwt);
 
-            setIsAuthenticated(true); // Passed down
-            setLoginSuccess(true); // Trigger navigation
-
+            // Update authentication state from app.js and redirectß
+            handleLogin();
         });
+
     };
 
     return (
@@ -53,8 +49,10 @@ function SignIn( {setIsAuthenticated}) {
                                     type="email"
                                     id="email"
                                     name="email"
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     required
+                                    onChange={ (event) => {
+                                        setFormData({ ...formData, email: event.target.value })
+                                    } } 
                                 />
                             </div>
                             <div>
@@ -63,9 +61,10 @@ function SignIn( {setIsAuthenticated}) {
                                     type="password"
                                     id="password"
                                     name="password"
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                     required
+                                    onChange={ (event) => {
+                                        setFormData( {...formData, password: event.target.value} );
+                                    } }
                                 />
                             </div>
                             <input type="submit" value="Sign In" className={`${g["button"]} ${g["success"]}`} />
