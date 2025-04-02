@@ -1,0 +1,10 @@
+.app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app main {
+    flex-grow: 1;
+    padding: 4rem 0;
+}
