@@ -48,7 +48,7 @@ function ModalContent({ onClose, onTapeAdded }) {
   };
 
   // Send the form data to the API
-  const handleFormSubmit = (event) => {
+  const handleFormSubmit = async (event) => {
 
     // Stop the HTML form from submitting
     event.preventDefault();
@@ -66,9 +66,11 @@ function ModalContent({ onClose, onTapeAdded }) {
       };
 
       // First, create the new artist by sending a POST request to the API
-     fetch(`${import.meta.env.VITE_API}/artists`, newArtistFetchMeta)
+      const response = await fetch(`${import.meta.env.VITE_API}/artists`, newArtistFetchMeta)
         .then((response) => response.json())
         .then((data) => {
+          alert("Artist created successfully!");
+          console.log(data);
           artistId = data.artistId;
         });
 
@@ -82,7 +84,7 @@ function ModalContent({ onClose, onTapeAdded }) {
     formData.append("image", image);
 
     // Send the POST request to the API to create new tape w/ the JWT token
-    fetch(`${import.meta.env.VITE_API}/tapes`, { 
+    const response = await fetch(`${import.meta.env.VITE_API}/tapes`, { 
         method: "POST", 
         body: formData,
         headers: {

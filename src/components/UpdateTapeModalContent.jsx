@@ -56,7 +56,7 @@ function UpdateModalContent({ onClose, onTapeUpdated, tape }) {
       const artistResponse = await fetch(`${import.meta.env.VITE_API}/artists`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ new_artist: newArtist }),
+        body: JSON.stringify({ name: newArtist }),
       });
 
       // Get the new artist ID from the response
