@@ -9,7 +9,7 @@ function Header( { handleLogout, isAuthenticated } ) {
     return (
         <header className={h['header']}>
             <div className={ `${g['container']} ${h['main-nav']}`}> 
-                <Link to="/">
+                <Link to={ isAuthenticated ? "/tapes" : "/" }>
                     <img src={logo} width={100} alt="Lofi Tapes" />
                 </Link>
                 <div>
